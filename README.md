@@ -1,1 +1,123 @@
 # CMSC-125-Lab-1
+
+## Task Distribution
+
+### Janiola
+
+* Command parsing and tokenization
+* Operator detection (`<`, `>`, `>>`, `&`)
+* Command data structure design
+* Edge case handling for malformed input
+
+### Verde
+
+* Process creation (`fork()`)
+* Command execution (`execvp()`)
+* I/O redirection using `open()` and `dup2()`
+* Background process handling using `waitpid()`
+
+### Both Members
+
+* System architecture review
+* Testing and debugging
+* Documentation and README
+
+---
+
+## Problem Analysis
+
+The shell must:
+
+* Accept interactive user input in a loop
+* Distinguish built-in vs external commands
+* Execute external programs using POSIX process API
+* Support I/O redirection:
+
+  * Input (`<`)
+  * Output overwrite (`>`)
+  * Output append (`>>`)
+* Support background execution (`&`)
+* Prevent zombie processes
+* Handle file and system call errors properly
+
+### Key Risks
+
+* Incorrect parsing of operators and arguments
+* Built-in commands executed in child process
+* File descriptor leaks
+* Unreaped background processes
+* Crashes from malformed input
+
+---
+
+## Solution Architecture
+
+### Main Components
+
+#### 1. Input Handler
+
+* Reads user input line
+* Skips empty input
+
+#### 2. Parser Module
+
+* Tokenizes input by whitespace
+* Detects redirection operators and background flag
+* Builds `Command` structure containing:
+
+  * command name
+  * argument list
+  * input file
+  * output file
+  * append flag
+  * background flag
+
+#### 3. Built-in Command Handler
+
+* `cd` using `chdir()`
+* `pwd` using `getcwd()`
+* `exit` to terminate shell
+
+#### 4. Execution Module
+
+* Creates child process using `fork()`
+* Applies redirection using `open()` and `dup2()`
+* Executes program using `execvp()`
+* Parent waits unless background job
+
+#### 5. Background Job Manager
+
+* Tracks running background processes
+* Cleans up completed jobs using `waitpid(..., WNOHANG)`
+
+---
+
+## Timeline Implementation
+
+### Week 1
+
+* Architecture review
+* Parser design
+* Command structure planning
+* Task division
+
+### Week 2
+
+* Process execution
+* Built-in commands
+* Basic I/O redirection
+
+### Week 3
+
+* Background job handling
+* Edge case processing
+* Error handling
+
+### Week 4
+
+* Full testing
+* Bug fixing
+* Documentation
+* Defense preparation
+
+---
