@@ -1,9 +1,3 @@
-Here’s a cleaned-up **GitHub-friendly Markdown version** — proper heading levels, consistent spacing, tight bullets, and clean nesting so it previews nicely in README or `.md` files.
-
-You don’t need the last “If you’d like…” part in GitHub, so I removed it.
-
----
-
 ## Task Distribution
 
 ### Member 1
