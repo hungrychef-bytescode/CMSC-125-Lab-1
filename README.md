@@ -2,25 +2,29 @@
 
 ## Task Distribution
 
-### Janiola
+### Janiola – Parser & Command Structure
 
-* Command parsing and tokenization
-* Operator detection (`<`, `>`, `>>`, `&`)
-* Command data structure design
-* Edge case handling for malformed input
+- Analyze lab requirements and grading rubric  
+- Review required system calls and common failure points  
+- Design parsing and tokenization logic  
+- Detect operators (`<`, `>`, `>>`, `&`)  
+- Separate command arguments from operators  
+- Design `Command` data structure  
+- Identify edge cases and malformed input scenarios  
 
-### Verde
+### Verde – Execution & Process Management
 
-* Process creation (`fork()`)
-* Command execution (`execvp()`)
-* I/O redirection using `open()` and `dup2()`
-* Background process handling using `waitpid()`
+- Implement process creation (`fork()`)  
+- Execute commands using `execvp()`  
+- Handle I/O redirection with `open()` and `dup2()`  
+- Manage background processes using `waitpid()`  
 
 ### Both Members
 
-* System architecture review
-* Testing and debugging
-* Documentation and README
+- Review overall system architecture  
+- Integrate parser and execution modules  
+- Testing and debugging  
+- Documentation and README
 
 ---
 
