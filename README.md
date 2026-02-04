@@ -28,6 +28,23 @@
 
 ---
 
+## Files
+mysh.c
+- main program
+- main func, interactive shell loop, prompt display, read user input, call parser and executor, background cleanup and exit
+parser.c
+- tokenization of user input, detect special operators, separate command arguments, validation
+executor.c
+- built-in command handling, external command execution, i/o redirection, background process, zombie process prevention, error handling
+shell.h
+- function prototype for parser, executor, and built-in commands, shared constants and flags
+documentation.md
+- file for supported commands, examples and test cases, limitations
+makefile
+- automation file. targets all: compile the shell, clean: remove binaries and object files
+
+---
+
 ## Problem Analysis
 
 The shell must:
