@@ -1,11 +1,13 @@
-# CMSC-125-Lab-1
+# CMSC 125 Lab 1: Unix Shell
+
+## Group Members:
+- Angel Mae Janiola
+- Myra Verde
 
 ## Task Distribution
 
 ### Janiola – Parser & Command Structure
 
-- Analyze lab requirements and grading rubric  
-- Review required system calls and common failure points  
 - Design parsing and tokenization logic  
 - Detect operators (`<`, `>`, `>>`, `&`)  
 - Separate command arguments from operators  
@@ -21,7 +23,7 @@
 
 ### Both Members
 
-- Review overall system architecture  
+- overall system architecture  
 - Integrate parser and execution modules  
 - Testing and debugging  
 - Documentation and README
@@ -74,17 +76,20 @@ The shell must:
 
 ## Solution Architecture
 
+shell reads input and calls parser -> parse and build Command structure -> return Command to mysh.c -> mysh.c calls executor -> executes by handling built-in commands (parent) and fork for external commands
+
 ### Main Components
 
 #### 1. Input Handler
 
+* mysh interactive loop prints prompt `mysh>`
 * Reads user input line
 * Skips empty input
 
 #### 2. Parser Module
 
-* Tokenizes input by whitespace
-* Detects redirection operators and background flag
+* Tokenize input by whitespace
+* Detect redirection operators and background flag
 * Builds `Command` structure containing:
 
   * command name
@@ -118,14 +123,13 @@ The shell must:
 
 ### Week 1
 
-* Architecture review
-* Parser design
-* Command structure planning
+* Github repo
+* Architecture design (problem analysis, solution architecture)
 * Task division
 
 ### Week 2
 
-* Process execution
+* Core features (process execution and parsing)
 * Built-in commands
 * Basic I/O redirection
 
@@ -137,9 +141,9 @@ The shell must:
 
 ### Week 4
 
-* Full testing
-* Bug fixing
-* Documentation
-* Defense preparation
+* finish and finalize lacking features
+* testing and bug fixing
+* documentation
+* laboratory defense
 
 ---
