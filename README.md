@@ -1,7 +1,7 @@
 # CMSC 125 Lab 1: Unix Shell
 
 ## Group Members:
-- Angel Mae Janiola
+- Angel May Janiola
 - Myra Verde
 
 ## Task Distribution
