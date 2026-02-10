@@ -1,7 +1,7 @@
 # CMSC 125 Lab 1: Unix Shell
 
 ## Group Members:
-- Angel Mae Janiola
+- Angel May Janiola
 - Myra Verde
 
 ## Task Distribution
@@ -32,18 +32,18 @@
 
 ## Files
 
-1. mysh.c
+1. mysh.c (myra)
 - main program
 - main func, interactive shell loop, prompt display, read user input, call parser and executor, background cleanup and exit
-2. parser.c
+2. parser.c (angel)
 - tokenization of user input, detect special operators, separate command arguments, validation
-3. executor.c
+3. executor.c (myra)
 - built-in command handling, external command execution, i/o redirection, background process, zombie process prevention, error handling
-4. shell.h
+4. shell.h (both)
 - function prototype for parser, executor, and built-in commands, shared constants and flags
-5. documentation.md
+5. documentation.md (both)
 - file for supported commands, examples and test cases, limitations
-6. makefile
+6. makefile (angel)
 - automation file. targets all: compile the shell, clean: remove binaries and object files
 
 ---
@@ -77,6 +77,7 @@ The shell must:
 ## Solution Architecture
 
 shell reads input and calls parser -> parse and build Command structure -> return Command to mysh.c -> mysh.c calls executor -> executes by handling built-in commands (parent) and fork for external commands
+- return code executor
 
 ### Main Components
 
@@ -129,7 +130,7 @@ shell reads input and calls parser -> parse and build Command structure -> retur
 
 ### Week 2
 
-* Core features (process execution and parsing)
+* Core features (process execution and parsing)  parsing and start interpreter
 * Built-in commands
 * Basic I/O redirection
 
