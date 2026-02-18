@@ -10,7 +10,7 @@ LDFLAGS =
 TARGET = mysh
 
 # Source files
-SOURCES = mysh.c parser.c executor.c
+SOURCES = mysh.c tokenizer.c #parser.c executor.c
 HEADERS = shell.h
 
 # Object files (automatically generated from source files)

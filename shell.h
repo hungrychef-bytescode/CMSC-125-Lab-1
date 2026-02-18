@@ -14,10 +14,11 @@ typedef struct {
     bool background;
 } Command;
 
-int parse_command(char *input, Command *cmd);
-void init_command(Command *cmd);
-void free_command(Command *cmd);
-void executor(Command *cmd);
+void tokenize(char *input, char *tokens[]);
+// int parse_command(char *input, Command *cmd);
+// void init_command(Command *cmd);
+// void free_command(Command *cmd);
+// void executor(Command *cmd);
 
 
 #endif

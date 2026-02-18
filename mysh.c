@@ -10,7 +10,6 @@
 
 #define MAX_INPUT 1000
 
-
 /*
 main function for the shell
 entry point and used for the interactive loop
@@ -18,35 +17,43 @@ entry point and used for the interactive loop
 int main() {
 
     char input[MAX_INPUT];
+    char *tokens[MAX_ARGS];
 
     while (1){
-        Command cmd;  // Assuming Command is defined in shell.h
+        // Command cmd;
         printf("mysh> ");
 
-        if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on EOF
+        if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error. add printf
         printf("Input: %s", input);
 
-        input[strcspn(input, "\n")] = '\0';                   
-              //remove newline
+        input[strcspn(input, "\n")] = '\0';                             //remove excess newline
 
-        if (parse_command(input, &cmd) != 0) {
-            continue;  // Empty or invalid input
+        tokenize(input, tokens);
+        printf("Tokens:\n");
+        for (int i = 0; tokens[i] != NULL; i++) {
+            printf("  %s\n", tokens[i]);
         }
 
-        for (int i = 0; cmd.args[i] != NULL; i++) {
-            printf("Arg[%d]: %s\n", i, cmd.args[i]);
-        }
-
-        if (cmd.input_file)
-            printf("Input redirection: %s\n", cmd.input_file);
-
-        if (cmd.output_file) {
-            printf("Output redirection: %s\n", cmd.output_file);
-            printf("Append mode: %s\n", cmd.append ? "true" : "false");
-        }
-
-        if (cmd.background)
-            printf("Background: true\n");
-            }
+    }
     return 0;
 }
+
+
+        // if (parse_command(input, &cmd) != 0) {
+        //     continue;  // Empty or invalid input
+        // }
+
+        // for (int i = 0; cmd.args[i] != NULL; i++) {
+        //     printf("Arg[%d]: %s\n", i, cmd.args[i]);
+        // }
+
+        // if (cmd.input_file)
+        //     printf("Input redirection: %s\n", cmd.input_file);
+
+        // if (cmd.output_file) {
+        //     printf("Output redirection: %s\n", cmd.output_file);
+        //     printf("Append mode: %s\n", cmd.append ? "true" : "false");
+        // }
+
+        // if (cmd.background)
+        //     printf("Background: true\n");
