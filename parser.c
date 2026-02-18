@@ -9,94 +9,97 @@
  * ============================================================================ */
 
 static void trim_whitespace(char *str);
-static int tokenize_input(char *line, char **tokens);
-static int process_tokens(char **tokens, int token_count, Command *cmd);
+static int tokenize_input(char *line, char tokens[][MAX_TOKEN_LEN], int *count);
+static int process_tokens(char tokens[][MAX_TOKEN_LEN], int token_count, Command *cmd);
 
 
 /* ============================================================================
  * PUBLIC INTERFACE - Command Management
- * ============================================================================ 
- * Initialize a Command structure to safe default values
+ * ============================================================================
+ * Initialize a Command structure to safe default values.
+ * No pointer fields — all data lives inside the struct itself.
  */
 void init_command(Command *cmd) {
-    cmd->command = NULL;
-    cmd->input_file = NULL;
-    cmd->output_file = NULL;
-    cmd->append = false;
-    cmd->background = false;
-    
+    cmd->command[0]     = '\0';
+    cmd->input_file[0]  = '\0';
+    cmd->output_file[0] = '\0';
+    cmd->append         = false;
+    cmd->background     = false;
+    cmd->arg_count      = 0;
+
     for (int i = 0; i < MAX_ARGS; i++) {
-        cmd->args[i] = NULL;
+        cmd->args[i][0] = '\0';
     }
 }
 
 /**
- * Clean up a Command structure
- * Does not free individual strings as they point to the original input buffer.
+ * Reset a Command structure back to defaults.
+ * Nothing to free — all memory is inside the struct.
  */
 void free_command(Command *cmd) {
     init_command(cmd);
 }
 
+/**
+ * Parse a raw input line into a Command structure.
+ * Returns 0 on success, -1 on error or empty input.
+ */
 int parse_command(char *line, Command *cmd) {
     init_command(cmd);
     trim_whitespace(line);
-    
+
     if (strlen(line) == 0) {
         return -1;
     }
-    
-    char *tokens[MAX_ARGS];
-    int token_count = tokenize_input(line, tokens);
-    
-    if (token_count == 0) {
-        return -1;
-    }
-    
-    if (token_count < 0) {
+
+    char tokens[MAX_ARGS][MAX_TOKEN_LEN];
+    int token_count = 0;
+
+    if (tokenize_input(line, tokens, &token_count) < 0) {
         fprintf(stderr, "mysh: error: too many arguments\n");
         return -1;
     }
-    
+
+    if (token_count == 0) {
+        return -1;
+    }
+
     if (process_tokens(tokens, token_count, cmd) < 0) {
+        free_command(cmd);
         return -1;
     }
-    
-    if (cmd->command == NULL) {
+
+    if (cmd->command[0] == '\0') {
         fprintf(stderr, "mysh: error: no command specified\n");
+        free_command(cmd);
         return -1;
     }
-    
+
     return 0;
 }
 
 
 /* ============================================================================
  * INPUT PREPROCESSING - Whitespace Handling
- * ============================================================================ 
- * Trim leading and trailing whitespace from string
+ * ============================================================================
+ * Trim leading and trailing whitespace in-place.
+ * The char *str parameter is just a function argument — not a heap pointer.
  */
-
 static void trim_whitespace(char *str) {
     if (str == NULL) return;
-    
+
     char *start = str;
-    while (isspace((unsigned char)*start)) {
-        start++;
-    }
-    
+    while (isspace((unsigned char)*start)) start++;
+
     if (*start == '\0') {
         *str = '\0';
         return;
     }
-    
+
     char *end = start + strlen(start) - 1;
-    while (end > start && isspace((unsigned char)*end)) {
-        end--;
-    }
-    
+    while (end > start && isspace((unsigned char)*end)) end--;
     *(end + 1) = '\0';
-    
+
     if (start != str) {
         memmove(str, start, strlen(start) + 1);
     }
@@ -106,116 +109,128 @@ static void trim_whitespace(char *str) {
 /* ============================================================================
  * TOKENIZATION - Breaking Input into Tokens
  * ============================================================================
- * Tokenize input string by whitespace characters
- * Uses strtok() to split input. Note: strtok() modifies the input string.
+ * Splits line by whitespace into a 2D array of tokens.
+ * No heap allocation — tokens is a fixed 2D char array on the stack.
+ * Returns 0 on success, -1 if token count exceeds MAX_ARGS.
  */
+static int tokenize_input(char *line, char tokens[][MAX_TOKEN_LEN], int *count) {
+    *count = 0;
 
-static int tokenize_input(char *line, char **tokens) {
-    int count = 0;
     char *token = strtok(line, " \t\n\r");
-    
-    while (token != NULL && count < MAX_ARGS - 1) {
-        tokens[count++] = token;
+    while (token != NULL) {
+        if (*count >= MAX_ARGS - 1) {
+            return -1;
+        }
+
+        strncpy(tokens[*count], token, MAX_TOKEN_LEN - 1);
+        tokens[*count][MAX_TOKEN_LEN - 1] = '\0';
+
+        (*count)++;
         token = strtok(NULL, " \t\n\r");
     }
-    
-    if (token != NULL) {
-        return -1;
-    }
-    
-    tokens[count] = NULL;
-    return count;
+
+    return 0;
 }
 
 
-/** ===========================================================================
+/* ============================================================================
  * TOKEN PROCESSING - Building Command Structure
- * ============================================================================ 
- * Classifies tokens: operators (<, >, >>, &) vs arguments
- * Validates: single I/O redirections, & as last token, command exists
+ * ============================================================================
+ * Classifies each token as an operator or argument and fills the Command.
+ * Uses strncpy — no strdup, no malloc, no heap allocation at all.
  */
-
-static int process_tokens(char **tokens, int token_count, Command *cmd) {
+static int process_tokens(char tokens[][MAX_TOKEN_LEN], int token_count, Command *cmd) {
     int arg_index = 0;
     int i = 0;
-    
+
     while (i < token_count) {
-        char *token = tokens[i];
-        
+        char *token = tokens[i]; /* local pointer for readability only, not stored */
+
+        /* Background operator */
         if (strcmp(token, "&") == 0) {
-            cmd->background = true;
             if (i != token_count - 1) {
                 fprintf(stderr, "mysh: error: '&' must be at end of command\n");
                 return -1;
             }
+            cmd->background = true;
             i++;
             continue;
         }
-        
+
+        /* Input redirection */
         if (strcmp(token, "<") == 0) {
             i++;
             if (i >= token_count) {
                 fprintf(stderr, "mysh: error: missing filename after '<'\n");
                 return -1;
             }
-            if (cmd->input_file != NULL) {
+            if (cmd->input_file[0] != '\0') {
                 fprintf(stderr, "mysh: error: multiple input redirections\n");
                 return -1;
             }
-            cmd->input_file = tokens[i];
+            strncpy(cmd->input_file, tokens[i], MAX_TOKEN_LEN - 1);
+            cmd->input_file[MAX_TOKEN_LEN - 1] = '\0';
             i++;
             continue;
         }
-        
+
+        /* Append redirection */
         if (strcmp(token, ">>") == 0) {
             i++;
             if (i >= token_count) {
                 fprintf(stderr, "mysh: error: missing filename after '>>'\n");
                 return -1;
             }
-            if (cmd->output_file != NULL) {
+            if (cmd->output_file[0] != '\0') {
                 fprintf(stderr, "mysh: error: multiple output redirections\n");
                 return -1;
             }
-            cmd->output_file = tokens[i];
+            strncpy(cmd->output_file, tokens[i], MAX_TOKEN_LEN - 1);
+            cmd->output_file[MAX_TOKEN_LEN - 1] = '\0';
             cmd->append = true;
             i++;
             continue;
         }
-        
+
+        /* Truncate redirection */
         if (strcmp(token, ">") == 0) {
             i++;
             if (i >= token_count) {
                 fprintf(stderr, "mysh: error: missing filename after '>'\n");
                 return -1;
             }
-            if (cmd->output_file != NULL) {
+            if (cmd->output_file[0] != '\0') {
                 fprintf(stderr, "mysh: error: multiple output redirections\n");
                 return -1;
             }
-            cmd->output_file = tokens[i];
+            strncpy(cmd->output_file, tokens[i], MAX_TOKEN_LEN - 1);
+            cmd->output_file[MAX_TOKEN_LEN - 1] = '\0';
             cmd->append = false;
             i++;
             continue;
         }
-        
+
+        /* Regular argument */
         if (arg_index >= MAX_ARGS - 1) {
             fprintf(stderr, "mysh: error: too many arguments\n");
             return -1;
         }
-        
-        cmd->args[arg_index++] = token;
-        if (cmd->command == NULL) {
-            cmd->command = token;
+
+        strncpy(cmd->args[arg_index], token, MAX_TOKEN_LEN - 1);
+        cmd->args[arg_index][MAX_TOKEN_LEN - 1] = '\0';
+
+        /* First argument is the command name */
+        if (cmd->command[0] == '\0') {
+            strncpy(cmd->command, token, MAX_TOKEN_LEN - 1);
+            cmd->command[MAX_TOKEN_LEN - 1] = '\0';
         }
+
+        arg_index++;
         i++;
     }
-    
-    cmd->args[arg_index] = NULL;
-    if (cmd->command == NULL) {
-        fprintf(stderr, "mysh: error: no command found\n");
-        return -1;
-    }
-    
+
+    cmd->arg_count    = arg_index;
+    cmd->args[arg_index][0] = '\0'; /* mark end of args */
+
     return 0;
 }
