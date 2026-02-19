@@ -1,15 +1,10 @@
 //mysh.c  simple shell implementation for CMSC 125 lab 1
 
-//to run: 1) gcc mysh.c -o mysh
-//2) ./mysh
-//next -> create makefile and parser
-
 #include <stdio.h>      //for printf, fgets
 #include <string.h>     //for strcspn
 #include "shell.h"      //for Command struct and parse_cmd function
 
 #define MAX_INPUT 1000
-
 
 /*
 main function for the shell
@@ -18,21 +13,22 @@ entry point and used for the interactive loop
 int main() {
 
     char input[MAX_INPUT];
+    char *tokens[MAX_ARGS];
 
     while (1){
-        Command cmd;  // Assuming Command is defined in shell.h
         printf("mysh> ");
 
-        if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on EOF
+        if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error. add printf
         printf("Input: %s", input);
 
-        input[strcspn(input, "\n")] = '\0';                   
-              //remove newline
+        input[strcspn(input, "\n")] = '\0';                             //remove excess newline
 
-        if (parse_command(input, &cmd) != 0) {
-            continue;  // Empty or invalid input
-        }
+        tokenize(input, tokens);
 
+        if (tokens[0] == NULL) continue;                               //if no input, continue loop
+
+        Command cmd = parse_command(tokens);
+        printf("Command: %s\n", cmd.command);
         for (int i = 0; cmd.args[i] != NULL; i++) {
             printf("Arg[%d]: %s\n", i, cmd.args[i]);
         }
@@ -46,7 +42,10 @@ int main() {
         }
 
         if (cmd.background)
-            printf("Background: true\n");
-            }
+            printf("Background: true\n");    
+        }
+        // free_command(&cmd);
     return 0;
 }
+
+        
