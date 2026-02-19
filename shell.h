@@ -15,9 +15,8 @@ typedef struct {
 } Command;
 
 void tokenize(char *input, char *tokens[]);
-// int parse_command(char *input, Command *cmd);
-// void init_command(Command *cmd);
-// void free_command(Command *cmd);
+Command parse_command(char *tokens[]);
+void free_command(Command *cmd);
 // void executor(Command *cmd);
 
 

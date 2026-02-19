@@ -4,7 +4,7 @@
 void tokenize(char *input, char *tokens[]) {
     int count = 0;
 
-    char *token = strtok(input, " \t\r\n");             //tokenize by whitespace
+    char *token = strtok(input, " \t\n");             //tokenize by whitespace
 
     if (token == NULL) {                               //if no tokens found, return empty array
         tokens[0] = NULL;
@@ -13,7 +13,7 @@ void tokenize(char *input, char *tokens[]) {
 
     while (token != NULL) {
         tokens[count] = token;
-        token = strtok(NULL, " \t\r\n");
+        token = strtok(NULL, " \t\n");
         count++;
     }
 
