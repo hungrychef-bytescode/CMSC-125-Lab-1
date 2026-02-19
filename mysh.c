@@ -28,6 +28,8 @@ int main() {
         if (tokens[0] == NULL) continue;                               //if no input, continue loop
 
         Command cmd = parse_command(tokens);
+        executor(&cmd);
+        // free_command(&cmd);
         printf("Command: %s\n", cmd.command);
         for (int i = 0; cmd.args[i] != NULL; i++) {
             printf("Arg[%d]: %s\n", i, cmd.args[i]);
