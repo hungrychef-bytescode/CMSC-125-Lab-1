@@ -29,7 +29,6 @@ int main() {
 
         Command cmd = parse_command(tokens);
         executor(&cmd);
-        // free_command(&cmd);
         printf("Command: %s\n", cmd.command);
         for (int i = 0; cmd.args[i] != NULL; i++) {
             printf("Arg[%d]: %s\n", i, cmd.args[i]);
@@ -44,7 +43,9 @@ int main() {
         }
 
         if (cmd.background)
-            printf("Background: true\n");    
+            printf("Background: true\n");   
+        
+        free_command(&cmd);
         }
         // free_command(&cmd);
     return 0;

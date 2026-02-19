@@ -4,6 +4,7 @@
 #include <stdbool.h> //for bool
 
 #define MAX_ARGS 256
+#define MAX_JOBS 100
 
 typedef struct {
     char *command;
