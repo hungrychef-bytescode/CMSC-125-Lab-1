@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L   //for strdup
 #include <stdio.h>      //for printf, fgets
 #include <stdlib.h>     //for exit
 #include <string.h>     //for strcmp
