@@ -1,50 +1,47 @@
+# 🐚 CMSC 125 Lab 1 — Unix Shell (`mysh`)
+
+> A simplified Unix shell implementing process management, I/O redirection, and background execution using the POSIX API in C.
 
 ---
 
-# CMSC 125 Lab 1: Unix Shell
+## 👥 Group Members
 
-## Group Members
-
-* ANGEL MAY B JANIOLA
-* MYRA S VERDE
-
----
-## Recorded Test Case Compiled Output
-[Click Here to Watch Test Case Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=sharing)
+| Name | Role |
+|------|------|
+| Angel May B. Janiola | Parser & Command Structure |
+| Myra S. Verde | Execution & Process Management |
 
 ---
 
-# Compilation and Usage Instructions
+## 🎬 Recorded Output
 
-## Requirements
+▶️ [Click Here to Watch Test Case Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=sharing)
 
-* GCC compiler
-* Unix-based system (Linux / macOS) or WSL
-* POSIX-compliant environment
+---
 
-## Compilation
+## ⚙️ Compilation & Usage
 
-Using the provided Makefile:
+### Requirements
+
+- GCC compiler
+- Unix-based system (Linux / macOS) or WSL
+- POSIX-compliant environment
+
+### Compile
 
 ```bash
 make
 ```
 
-This compiles all source files and generates the executable:
-
-```
-mysh
-```
-
-To remove compiled files:
+Generates the `mysh` executable. To clean compiled files:
 
 ```bash
 make clean
 ```
 
-## Running the Shell
+### Run
 
-```
+```bash
 ./mysh
 ```
 
@@ -54,256 +51,139 @@ The shell will display the prompt:
 mysh>
 ```
 
-To exit:
+To exit the shell:
 
 ```
-exit
+mysh> exit
 ```
 
 ---
 
-# Task Distribution
+## ✅ Implemented Features
 
-### Janiola – Parser & Command Structure
+### 1. 🖥️ Interactive Shell
+- Continuous input loop with custom `mysh>` prompt
+- Skips empty and whitespace-only input
 
-* Design parsing and tokenization logic
-* Detect operators (`<`, `>`, `>>`, `&`)
-* Separate command arguments from operators
-* Design `Command` data structure
-* Identify edge cases and malformed input scenarios
+### 2. 🔧 Built-in Commands
 
-### Verde – Execution & Process Management
+| Command | Description |
+|---------|-------------|
+| `cd <dir>` | Change directory using `chdir()` |
+| `pwd` | Print working directory using `getcwd()` |
+| `exit` | Terminate the shell |
 
-* Implement process creation (`fork()`)
-* Execute commands using `execvp()`
-* Handle I/O redirection with `open()` and `dup2()`
-* Manage background processes using `waitpid()`
+### 3. ⚡ External Command Execution
+- Creates child processes using `fork()`
+- Executes commands using `execvp()`
+- Parent waits for foreground processes to finish
 
-### Both Members
+### 4. 🔀 I/O Redirection
 
-* Overall system architecture
-* Integration of parser and execution modules
-* Testing and debugging
-* Documentation and README
+| Operator | Description |
+|----------|-------------|
+| `<` | Input redirection |
+| `>` | Output redirection (overwrite) |
+| `>>` | Output redirection (append) |
 
----
+Implemented using `open()` and `dup2()`.
 
-# Files
+### 5. Background Execution
+- Supports `&` operator
+- Parent does not block for background processes
+- Uses `waitpid(..., WNOHANG)` to prevent zombie processes
 
-1. **mysh.c** (Myra)
-
-   * Main program
-   * Interactive shell loop
-   * Prompt display
-   * Reads user input
-   * Calls parser and executor
-   * Background cleanup and exit
-
-2. **parser.c** (Angel)
-
-   * Tokenization of user input
-   * Detect special operators
-   * Separate command arguments
-   * Validation
-
-3. **executor.c** (Myra)
-
-   * Built-in command handling
-   * External command execution
-   * I/O redirection
-   * Background process handling
-   * Zombie process prevention
-   * Error handling
-
-4. **shell.h** (Both)
-
-   * Function prototypes for parser, executor, and built-in commands
-   * Shared constants and flags
-
-5. **documentation.md** (Both)
-
-   * Supported commands
-   * Examples and test cases
-   * Limitations
-
-6. **Makefile** (Angel)
-
-   * `make` → compile the shell
-   * `make clean` → remove binaries and object files
+### 6. 🛡️ Error Handling
+- Detects malformed input
+- Handles system call failures gracefully
+- Prevents file descriptor leaks
+- Ensures background processes are reaped
 
 ---
 
-# Implemented Features
+## ⚠️ Known Limitations
 
-## 1. Interactive Shell
-
-* Accepts user input in a continuous loop
-* Displays custom prompt `mysh>`
-* Skips empty input
-
-## 2. Built-in Commands
-
-* `cd` (uses `chdir()`)
-* `pwd` (uses `getcwd()`)
-* `exit`
-
-## 3. External Command Execution
-
-* Creates child processes using `fork()`
-* Executes commands using `execvp()`
-* Parent waits for foreground processes
-
-## 4. I/O Redirection
-
-* Input redirection `<`
-* Output overwrite `>`
-* Output append `>>`
-* Implemented using `open()` and `dup2()`
-
-## 5. Background Execution
-
-* Supports `&` operator
-* Parent does not block for background processes
-* Uses `waitpid(..., WNOHANG)` to prevent zombie processes
-
-## 6. Error Handling
-
-* Detects malformed input
-* Handles system call failures
-* Prevents file descriptor leaks
-* Ensures background processes are reaped
+- No pipe support (`|`)
+- No multi-command support (`;`)
+- No environment variable expansion (`$HOME`, etc.)
+- No quote handling (`"` or `'`)
+- No advanced job control (`jobs`, `fg`, `bg`)
+- Limited validation for complex malformed inputs
 
 ---
 
-# Known Limitations or Bugs
-
-* Does not support piping (`|`)
-* Does not support multiple commands separated by `;`
-* No support for environment variable expansion (e.g., `$HOME`)
-* No quotation mark handling (`"` or `'`)
-* No advanced job control (`jobs`, `fg`, `bg`)
-* Limited validation for complex malformed inputs
-
----
-
-# Problem Analysis
-
-The shell must:
-
-* Accept interactive user input in a loop
-* Distinguish built-in vs external commands
-* Execute external programs using POSIX process API
-* Support I/O redirection:
-
-  * Input (`<`)
-  * Output overwrite (`>`)
-  * Output append (`>>`)
-* Support background execution (`&`)
-* Prevent zombie processes
-* Handle file and system call errors properly
-
-### Key Risks
-
-* Incorrect parsing of operators and arguments
-* Built-in commands executed in child process
-* File descriptor leaks
-* Unreaped background processes
-* Crashes from malformed input
-
----
-
-# Design Decisions and Architecture Overview
-
-## Solution Architecture
-
-Shell reads input and calls parser → parser builds `Command` structure → returns to `mysh.c` → `mysh.c` calls executor → executor handles built-in commands (parent) or forks for external commands.
+## 🗂️ File Structure
 
 ```
+.
+├── mysh.c          # Main shell loop, prompt, input handling
+├── parser.c        # Tokenization, operator detection, Command struct builder
+├── executor.c      # Built-ins, fork/exec, I/O redirection, background jobs
+├── shell.h         # Shared structs, constants, function prototypes
+├── Makefile        # Build system
+├── documentation.md
+├── test_mysh.sh    # Test script
+└── README.md
+```
+
+### File Responsibilities
+
+**`mysh.c`** *(Myra)*
+- Main program entry point
+- Interactive shell loop and prompt display
+- Calls parser and executor
+- Background cleanup on exit
+
+**`parser.c`** *(Angel)*
+- Tokenizes user input by whitespace
+- Detects `<`, `>`, `>>`, `&` operators
+- Builds and returns `Command` structure
+- Input validation
+
+**`executor.c`** *(Myra)*
+- Built-in command handling (`cd`, `pwd`, `exit`)
+- External command execution via `fork()` + `execvp()`
+- I/O redirection with `open()` + `dup2()`
+- Background process tracking and zombie prevention
+
+**`shell.h`** *(Both)*
+- `Command` struct definition
+- Shared constants (`MAX_ARGS`, `MAX_JOBS`)
+- Function prototypes
+
+**`Makefile`** *(Angel)*
+- `make` — compile the shell
+- `make clean` — remove binaries and object files
+
+---
+
+## 🏗️ Architecture Overview
+
+```
+User Input
+    │
+    ▼
 Shell Loop (mysh.c)
-        ↓
+    │
+    ▼
 Parser Module (parser.c)
-        ↓
+    │  tokenize input, detect operators
+    ▼
 Command Structure
-        ↓
+    │  { command, args[], input_file, output_file, append, background }
+    ▼
 Executor Module (executor.c)
+    ├── Built-in? → run in parent process
+    └── External? → fork() → apply redirections → execvp()
 ```
 
----
-
-## Main Components
-
-### 1. Input Handler
-
-* Prints prompt `mysh>`
-* Reads user input
-* Skips empty lines
-
-### 2. Parser Module
-
-* Tokenizes input by whitespace
-* Detects redirection operators and background flag
-* Builds `Command` structure containing:
-
-  * Command name
-  * Argument list
-  * Input file
-  * Output file
-  * Append flag
-  * Background flag
-
-### 3. Built-in Command Handler
-
-Built-in commands are executed in the parent process because:
-
-* `cd` must change the shell’s working directory
-* `exit` must terminate the shell
-
-### 4. Execution Module
-
-* `fork()` creates child process
-* Child applies redirection using `open()` and `dup2()`
-* Executes program using `execvp()`
-* Parent waits unless command runs in background
-
-### 5. Background Job Manager
-
-* Tracks background processes
-* Uses `waitpid(..., WNOHANG)` to clean up completed jobs
+Built-in commands (`cd`, `exit`) **must** run in the parent process — `cd` changes the shell's own working directory, and `exit` terminates the shell itself.
 
 ---
 
-# Timeline Implementation
+## 🧪 Test Cases
 
-### Week 1
-
-* GitHub repository setup
-* Architecture design
-* Task division
-
-### Week 2
-
-* Core features (process execution and parsing)
-* Built-in commands
-* Basic I/O redirection
-
-### Week 3
-
-* Background job handling
-* Edge case processing
-* Error handling
-
-### Week 4
-
-* Finalizing features
-* Testing and bug fixing
-* Documentation
-* Laboratory defense
-
----
-
-# Proof of Functionality
-
-### Test Script Code (test_mysh.sh)
+### Test Script (`test_mysh.sh`)
 
 ```bash
 #!/bin/bash
@@ -375,7 +255,7 @@ run_test() {
     echo ""
 }
 
-# ── Setup ────────────────────────────────────────────────────
+# Setup
 echo -e "banana\nangel\ncherry\nmyra\nzebra" > unsorted.txt
 
 print_header
@@ -395,6 +275,24 @@ run_test "exit"                 "exit"
 print_footer
 ```
 
-### Recorded Output
+### Run the Test Script
 
-[Click Here to Watch Test Case Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=sharing)
+```bash
+make all
+bash test_mysh.sh
+```
+
+---
+
+## 📅 Development Timeline
+
+| Week | Milestone |
+|------|-----------|
+| Week 1 | Repository setup, architecture design, task division |
+| Week 2 | Core features — process execution, parsing, built-ins, basic I/O redirection |
+| Week 3 | Background job handling, edge cases, error handling |
+| Week 4 | Finalization, testing, bug fixes, documentation, lab defense |
+
+---
+
+> *"Code tells you how, comments tell you why."* — Jeff Atwood
