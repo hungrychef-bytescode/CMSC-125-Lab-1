@@ -299,7 +299,7 @@ Built-in commands are executed in the parent process because:
 
 # Proof of Functionality
 
-### Test Script Code
+### Test Script Code (test_mysh.sh)
 
 ```bash
 #!/bin/bash
@@ -393,4 +393,4 @@ print_footer
 
 ### Recorded Output
 
-[Click here to watch Test Case Output](https:// )
+[Click Here to Watch Test Case Compiled Output](https:// )
