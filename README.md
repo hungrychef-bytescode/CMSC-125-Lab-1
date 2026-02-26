@@ -10,6 +10,13 @@
 |------|------|
 | Angel May B. Janiola | Parser & Command Structure |
 | Myra S. Verde | Execution & Process Management |
+---
+
+## Recorded Compiled Output 
+> *disclaimer: this isn't required but we'd like to put this here for our own benefit and documentation purposes*
+
+ [Click Here to Watch Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=drive_link)
+
 
 ---
 
