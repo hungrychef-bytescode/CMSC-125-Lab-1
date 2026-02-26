@@ -16,7 +16,7 @@ void tokenize(char *input_dup, char *tokens[]) {
         return;
     }
 
-    while (token != NULL) {
+    while (token != NULL && count < MAX_ARGS -1) {
         tokens[count] = token;
         token = strtok(NULL, " \t\n");
         count++;

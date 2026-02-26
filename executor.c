@@ -158,7 +158,7 @@ void cleanup_background_jobs(void) {
 
         if (result > 0) {
             // process finished
-            printf("[%d]   Done\t%s\n", background_jobs[i].id, background_jobs[i].command);
+            printf("[%d]   Done\t%s\t PID: %d\n", background_jobs[i].id, background_jobs[i].command, background_jobs[i].pid);
 
             if (finished_job_count < MAX_JOBS) { 
                 finished_jobs[finished_job_count++] = background_jobs[i];

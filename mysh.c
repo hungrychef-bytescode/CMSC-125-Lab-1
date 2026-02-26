@@ -36,7 +36,8 @@ int main() {
 
         Command cmd = parse_command(tokens);
         free(input_dup);                                                //free input dup string
-
+        input_dup = NULL;
+        
         executor(&cmd);                                                 //call executor to run commands
         free_command(&cmd);
         }
