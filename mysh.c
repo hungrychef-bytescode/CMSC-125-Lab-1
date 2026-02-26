@@ -1,10 +1,10 @@
 //mysh.c  simple shell implementation for CMSC 125 lab 1
-#include <stdio.h>      //for printf, fgets
-#include <stdlib.h>     //for free
-#include <string.h>     //for strcspn, strdup
-#include "shell.h"      //for Command struct and parse_cmd function
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "shell.h"
 
-#define MAX_INPUT 1000
+#define MAX_INPUT 1024
 
 /*
 main function for the shell
@@ -16,7 +16,10 @@ int main() {
     char *tokens[MAX_ARGS];
 
     while (1){
+        cleanup_background_jobs();
+
         printf("mysh> ");
+        fflush(stdout);
 
         if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error.
 
@@ -32,26 +35,10 @@ int main() {
         }
 
         Command cmd = parse_command(tokens);
-        printf("Command: %s\n", cmd.command);
-        for (int i = 0; cmd.args[i] != NULL; i++) {
-            printf("Arg[%d]: %s\n", i, cmd.args[i]);
-        }
-
-        if (cmd.input_file)
-            printf("Input redirection: %s\n", cmd.input_file);
-
-        if (cmd.output_file) {
-            printf("Output redirection: %s\n", cmd.output_file);
-            printf("Append mode: %s\n", cmd.append ? "true" : "false");
-        }
-
-        if (cmd.background)
-            printf("Background: true\n");  
         free(input_dup);                                                //free input dup string
-        free_command(&cmd);  
+
+        executor(&cmd);                                                 //call executor to run commands
+        free_command(&cmd);
         }
-        // free_command(&cmd);
     return 0;
 }
-
-        
