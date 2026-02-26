@@ -298,3 +298,5 @@ Built-in commands are executed in the parent process because:
 ---
 
 # Screenshots showing Functionality
+
+### Interactive Command Loop
