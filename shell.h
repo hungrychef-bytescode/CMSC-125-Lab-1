@@ -27,6 +27,7 @@ void tokenize(char *input, char *tokens[]);
 Command parse_command(char *tokens[]);
 void free_command(Command *cmd);
 int executor(Command *cmd);
+int built_in_commands(Command *cmd);
 void cleanup_background_jobs(void);
 
 

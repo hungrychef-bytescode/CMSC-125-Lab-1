@@ -15,35 +15,14 @@ static int next_job_id = 1;         //start job IDs from 1 same with real shell
 //perror -> print syscall error message
 int executor(Command *cmd){
 
-     if (cmd == NULL || cmd->command == NULL)               //check for null command
+    if (cmd == NULL || cmd->command == NULL)               //check for null command
         return 1;
 
-    // built-in commands
-    if (strcmp(cmd->command, "exit") == 0) {            //exit shell
-        printf("exiting shell......\n");
-        exit(0);
+    int built_in_result = built_in_commands(cmd);
+    if (built_in_result != -1) {                         //check for built-in commands first (exit, cd, pwd) without forking
+        return built_in_result;                                       //if built-in command executed, return result
     }
-
-    if (strcmp(cmd->command, "cd") == 0) {              //change directory
-        if (cmd->args[1] == NULL) {
-            fprintf(stderr, "cd: requires an argument\n");
-        } else if (chdir(cmd->args[1]) == 0) {
-            printf("changed directory");
-        } else {
-            perror("failed to change directory");
-        }
-        return 1;
-    }
-
-    if (strcmp(cmd->command, "pwd") == 0) {             //print current working directory
-        char cwd[1024];     
-        if (getcwd(cwd, sizeof(cwd)) != NULL) {
-            printf("pwd: %s\n", cwd);
-        } else {
-            perror("failed to get current directory");
-        }
-        return 1;       
-    }
+    
 
     //external commands
     pid_t pid = fork();
@@ -101,6 +80,39 @@ int executor(Command *cmd){
         }
     }
     return 0;}
+
+int built_in_commands(Command *cmd) {
+    
+    if (strcmp(cmd->command, "exit") == 0) {            //exit shell
+        printf("exiting shell......\n");
+        exit(0);
+    }
+
+    if (strcmp(cmd->command, "cd") == 0) {              //change directory
+        if (cmd->args[1] == NULL) {
+            fprintf(stderr, "cd: missing argument\n");
+            return 1;    
+        } else if (chdir(cmd->args[1]) == 0) {
+            return 0;                                   //success
+            // printf("changed directory");
+        } else {
+            perror("cd");
+            return 1;
+        }
+    }
+
+    if (strcmp(cmd->command, "pwd") == 0) {             //print current working directory
+        char cwd[1024];     
+        if (getcwd(cwd, sizeof(cwd)) != NULL) {
+            printf("%s\n", cwd);
+            return 0;                                   //success
+        } else {
+            perror("failed to get current directory");
+            return 1;
+        }     
+    }
+    return -1;                                          //not built-in command
+}
 
 void cleanup_background_jobs(void) {
     int status;

@@ -20,7 +20,7 @@ void tokenize(char *input_dup, char *tokens[]) {
         tokens[count] = token;
         token = strtok(NULL, " \t\n");
         count++;
-        printf("Token %d: %s\n", count, tokens[count-1]);
+        // printf("Token %d: %s\n", count, tokens[count-1]);
     }
     tokens[count] = NULL;               //null-terminate arr of token
 }
