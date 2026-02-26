@@ -26,6 +26,11 @@ int main() {
 
         tokenize(input_dup, tokens);                                    //tokenize input to tokens arr
 
+        if (tokens[0] == NULL) {                                        //if empty, prompt again
+            free(input_dup);
+            continue;
+        }
+
         Command cmd = parse_command(tokens);
         printf("Command: %s\n", cmd.command);
         for (int i = 0; cmd.args[i] != NULL; i++) {
