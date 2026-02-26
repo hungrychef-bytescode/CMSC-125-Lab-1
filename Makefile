@@ -3,7 +3,7 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic -g
+CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic -g -D_POSIX_C_SOURCE=200809L
 LDFLAGS =
 
 # Target executable
