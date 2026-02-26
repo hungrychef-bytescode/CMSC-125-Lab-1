@@ -13,12 +13,6 @@
 
 ---
 
-## Recorded Output
-
-▶️ [Click Here to Watch Test Case Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=sharing)
-
----
-
 ## Compilation & Usage
 
 ### Requirements
@@ -181,117 +175,14 @@ Built-in commands (`cd`, `exit`) **must** run in the parent process — `cd` cha
 
 ---
 
-## 🧪 Test Cases
-
-### Test Script (`test_mysh.sh`)
-
-```bash
-#!/bin/bash
-
-PASS=0
-FAIL=0
-
-print_header() {
-    echo ""
-    echo "╔════════════════════════════════════════════════════╗"
-    echo "║              mysh Test Suite                       ║"
-    echo "╚════════════════════════════════════════════════════╝"
-    echo ""
-}
-
-print_footer() {
-    echo ""
-    echo "╔════════════════════════════════════════════════════╗"
-    echo "║                  SUMMARY                           ║"
-    printf  "║  ✅ PASSED: %-2d   ❌ FAILED: %-2d                     ║\n" $PASS $FAIL
-    echo "║                                                    ║"
-    echo "║              Test Suite Complete                   ║"
-    echo "╚════════════════════════════════════════════════════╝"
-    echo ""
-}
-
-run_test() {
-    local desc=$1
-    shift
-    local commands=("$@")
-
-    echo "┌─────────────────────────────────────────────────────"
-    echo "│ 🧪 TEST : $desc"
-    echo "│ 📌 CMD  : ${commands[*]}"
-    echo "│ 📤 OUT  :"
-    echo "│"
-
-    local input=""
-    for cmd in "${commands[@]}"; do
-        input+="$cmd"$'\n'
-    done
-
-    local output
-    output=$(echo "$input" | ./mysh 2>&1 \
-        | grep -v "^Input:" \
-        | grep -v "^Command:" \
-        | grep -v "^Arg\[" \
-        | grep -v "^Output redirection" \
-        | grep -v "^Append mode" \
-        | grep -v "^Background" \
-        | grep -v "^Input redirection" \
-        | grep -v "mysh>")
-
-    if [ -z "$output" ]; then
-        echo "│   (no output)"
-        FAIL=$((FAIL + 1))
-        echo "│"
-        echo "│ ❌ RESULT: FAIL"
-    else
-        echo "$output" | while IFS= read -r line; do
-            echo "│   $line"
-        done
-        PASS=$((PASS + 1))
-        echo "│"
-        echo "│ ✅ RESULT: PASS"
-    fi
-
-    echo "└─────────────────────────────────────────────────────"
-    echo ""
-}
-
-# Setup
-echo -e "banana\nangel\ncherry\nmyra\nzebra" > unsorted.txt
-
-print_header
-
-run_test "pwd"                  "pwd"
-run_test "ls -la"               "ls -la"
-run_test "echo"                 "echo Hello World"
-run_test "output redirection"   "ls -la > output.txt" "cat output.txt"
-run_test "input redirection"    "ls -la > output.txt" "wc -l < output.txt"
-run_test "append redirection"   'echo "some text" >> output.txt' "cat output.txt"
-run_test "combined redirection" "sort < unsorted.txt > sorted.txt" "cat sorted.txt"
-run_test "background process"   "sleep 10 &" "sleep 20 &"
-run_test "nonexistent command"  "nonexistent_command"
-run_test "cd and pwd"           "cd /tmp" "pwd"
-run_test "exit"                 "exit"
-
-print_footer
-```
-
-### Run the Test Script
-
-```bash
-make all
-bash test_mysh.sh
-```
-
----
-
 ## 📅 Development Timeline
 
 | Week | Milestone |
 |------|-----------|
 | Week 1 | Repository setup, architecture design, task division |
-| Week 2 | Core features — process execution, parsing, built-ins, basic I/O redirection |
-| Week 3 | Background job handling, edge cases, error handling |
-| Week 4 | Finalization, testing, bug fixes, documentation, lab defense |
+| Week 2 | Core features — parsing, built-ins |
+| Week 3 | Background job handling, external commands, edge cases, error handling |
+| Week 4 | Reap zombie processes, finalization, testing, bug fixes, documentation, lab defense/recording |
 
 ---
 
