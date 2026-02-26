@@ -1,8 +1,8 @@
 //mysh.c  simple shell implementation for CMSC 125 lab 1
-#include <stdio.h>      //for printf, fgets
-#include <stdlib.h>     //for free
-#include <string.h>     //for strcspn, strdup
-#include "shell.h"      //for Command struct and function prototypes
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "shell.h"
 
 #define MAX_INPUT 1024
 
@@ -19,6 +19,7 @@ int main() {
         cleanup_background_jobs();
 
         printf("mysh> ");
+        fflush(stdout);
 
         if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error.
 

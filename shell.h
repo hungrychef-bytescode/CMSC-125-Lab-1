@@ -20,7 +20,6 @@ typedef struct {
     int id;
     pid_t pid;
     char command[256];
-    bool is_running;
 } Job;
 
 void tokenize(char *input, char *tokens[]);

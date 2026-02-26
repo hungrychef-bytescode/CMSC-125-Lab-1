@@ -12,17 +12,19 @@ static Job background_jobs[MAX_JOBS];
 static int job_count = 0;
 static int next_job_id = 1;         //start job IDs from 1 same with real shell
 
+static Job finished_jobs[MAX_JOBS];
+static int finished_job_count = 0;
 
-//perror -> print syscall error message
 int executor(Command *cmd){
 
-    if (cmd == NULL || cmd->command == NULL)               //check for null command
-        return 1;
+    if (cmd == NULL || cmd->command == NULL) return 1;      // null commands
 
     int status = built_in_commands(cmd);                        //built-in commands first (exit, cd, pwd) without forking
 
     return (status != -1) ? status : external_commands(cmd);     //if not built-in, execute external command
 }
+
+//perror -> print syscall error message
 
 int built_in_commands(Command *cmd) {
     //exit command
@@ -73,7 +75,7 @@ int external_commands(Command *cmd) {
             int file = open(cmd->input_file, O_RDONLY);
             if (file < 0) {
                 perror("input redirection");
-                exit(1);
+                _exit(1);
             }
             dup2(file, STDIN_FILENO);
             close(file);                 //close original fd
@@ -91,7 +93,7 @@ int external_commands(Command *cmd) {
             int file = open(cmd->output_file, flags, 0644);   //0644-file permissions
             if (file < 0) {
                 perror("open output file");
-                exit(1);
+                _exit(1);
             }
             dup2(file, STDOUT_FILENO);
             close(file);
@@ -99,7 +101,7 @@ int external_commands(Command *cmd) {
 
         execvp(cmd->command, cmd->args);
         perror(cmd->command);
-        exit(127);     //cmd not found
+        _exit(127);     //cmd not found
     }
                                             
         //parent process
@@ -116,7 +118,7 @@ int external_commands(Command *cmd) {
             }
 
             if (WIFSIGNALED(status)) {                            //check if child terminated by signal
-                printf("Process terminated by signal %d\n", WTERMSIG(status));
+                printf("process terminated by signal %d\n", WTERMSIG(status));
                 return 1;
             }
             return 1;                                           //not normal exit
@@ -129,7 +131,6 @@ int external_commands(Command *cmd) {
 
             background_jobs[job_count].id = next_job_id++;
             background_jobs[job_count].pid = pid;
-            background_jobs[job_count].is_running = true;
 
             //store command name for job listing. snprintf to avoid buffer overflow
             snprintf(background_jobs[job_count].command, sizeof(background_jobs[job_count].command), "%s", cmd->command);
@@ -142,8 +143,13 @@ int external_commands(Command *cmd) {
     return 1;
 }
 
+/* cleanup_background_jobs function -> 
+clean up background jobs that have finished running
+uses waitpid with WNOHANG to check if each background job has completed without blocking the shell
+if a job has finished, print a message and remove it from the background jobs list by shifting the remaining jobs left in the array
+*/
 void cleanup_background_jobs(void) {
-    int status;
+    int status; //for waitpid
 
     for (int i = 0; i < job_count; ) {
 
@@ -151,23 +157,25 @@ void cleanup_background_jobs(void) {
 
         if (result > 0) {
             // process finished
-            printf("[%d]   Done\t%s\n",
-                   background_jobs[i].id,
-                   background_jobs[i].command);
+            printf("[%d]   Done\t%s\n", background_jobs[i].id, background_jobs[i].command);
 
-            //remove job by shifting array left
-            for (int j = i; j < job_count - 1; j++) {
-                background_jobs[j] = background_jobs[j + 1];
+            if (finished_job_count < MAX_JOBS) { 
+                finished_jobs[finished_job_count++] = background_jobs[i];
             }
 
-            job_count--;  // reduce job count
+            background_jobs[i] = background_jobs[job_count - 1];
+            job_count--;   
         }
-        else if (result == 0) {
-            i++;
+        else if (result == 0) {     //job still running, move to next job
+            i++;     
         }
     }
 }
 
+/* exit_cleanup func -> 
+terminate all background jobs when shell exits
+checks if each job is still running and sends termination signal if so, then waits for it to finish
+*/
 void exit_cleanup(void) {
 
     for (int i = 0; i < job_count; i++) {
