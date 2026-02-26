@@ -1,5 +1,5 @@
-#define _POSIX_C_SOURCE 200809L   //for strdup#include <stdio.h>      //for printf, fgets
-#include <stdio.h>
+#define _POSIX_C_SOURCE 200809L   //for strdup
+#include <stdio.h>      //for printf, fgets
 #include <stdlib.h>     //for exit
 #include <string.h>     //for strcmp
 #include <unistd.h>     //for fork, execvp, getcwd
