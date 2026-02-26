@@ -1,9 +1,10 @@
-#include <stdio.h>      //for printf, fgets
+#define _POSIX_C_SOURCE 200809L   //for strdup#include <stdio.h>      //for printf, fgets
+#include <stdio.h>
 #include <stdlib.h>     //for exit
 #include <string.h>     //for strcmp
-#include <unistd.h> //for fork, execvp, getcwd
-#include <fcntl.h> //for open
-#include <sys/wait.h> //for waitpid
+#include <unistd.h>     //for fork, execvp, getcwd
+#include <fcntl.h>      //for open
+#include <sys/wait.h>   //for waitpid
 #include "shell.h"    
 
 static pid_t background_jobs[MAX_JOBS];     //storage for background job PIDs
@@ -25,9 +26,9 @@ void executor(Command *cmd){
 
     if (strcmp(cmd->command, "cd") == 0) {              //change directory
         if (cmd->args[1] == NULL) {
-            fprintf(stderr, "cd: requires an argument\n");
+            //fprintf(stderr, "cd: requires an argument\n");
         } else if (chdir(cmd->args[1]) == 0) {
-            printf("changed directory");
+            //printf("changed directory");
         } else {
             perror("failed to change directory");
         }
@@ -37,7 +38,7 @@ void executor(Command *cmd){
     if (strcmp(cmd->command, "pwd") == 0) {             //print current working directory
         char cwd[1024];     
         if (getcwd(cwd, sizeof(cwd)) != NULL) {
-            printf("pwd: %s\n", cwd);
+            printf("%s\n", cwd);
         } else {
             perror("failed to get current directory");
         }
