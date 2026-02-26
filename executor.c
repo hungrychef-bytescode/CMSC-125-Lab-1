@@ -4,6 +4,7 @@
 #include <unistd.h> //for fork, execvp, getcwd
 #include <fcntl.h> //for open
 #include <sys/wait.h> //for waitpid
+#include <signal.h> //for kill
 #include "shell.h"    
 
 /*background job tracking*/
@@ -26,6 +27,7 @@ int executor(Command *cmd){
 int built_in_commands(Command *cmd) {
     //exit command
     if (strcmp(cmd->command, "exit") == 0) {
+        exit_cleanup();
         printf("exiting shell......\n");
         exit(0);
     }
@@ -73,11 +75,7 @@ int external_commands(Command *cmd) {
                 perror("input redirection");
                 exit(1);
             }
-            if (dup2(file, STDIN_FILENO) < 0) {    //redirect stdin to file
-                perror("dup2 input redirection");
-                close(file);
-                exit(1);
-            }
+            dup2(file, STDIN_FILENO);
             close(file);                 //close original fd
         }
 
@@ -95,11 +93,7 @@ int external_commands(Command *cmd) {
                 perror("open output file");
                 exit(1);
             }
-            if (dup2(file, STDOUT_FILENO) < 0) {    //redirect stdout to file
-                perror("dup2 output redirection");
-                close(file);
-                exit(1);
-            }
+            dup2(file, STDOUT_FILENO);
             close(file);
         }
 
@@ -140,7 +134,7 @@ int external_commands(Command *cmd) {
             //store command name for job listing. snprintf to avoid buffer overflow
             snprintf(background_jobs[job_count].command, sizeof(background_jobs[job_count].command), "%s", cmd->command);
 
-            printf("[%d] %d\n", job_count, pid);                    //print background job info
+            printf("[%d] %d\n", background_jobs[job_count].id, pid);                  //print background job info
             job_count++;
 
             return 0;
@@ -148,24 +142,38 @@ int external_commands(Command *cmd) {
     return 1;
 }
 
-
-
 void cleanup_background_jobs(void) {
     int status;
-    pid_t pid;
 
-    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+    for (int i = 0; i < job_count; ) {
 
-        for (int i = 0; i < job_count; i++) {
+        pid_t result = waitpid(background_jobs[i].pid, &status, WNOHANG);
 
-            if (background_jobs[i].pid == pid && background_jobs[i].is_running) {
+        if (result > 0) {
+            // process finished
+            printf("[%d]   Done\t%s\n",
+                   background_jobs[i].id,
+                   background_jobs[i].command);
 
-                background_jobs[i].is_running = false;
-
-                printf("[%d]   Done \t %s\n",
-                       background_jobs[i].id,
-                       background_jobs[i].command);
+            //remove job by shifting array left
+            for (int j = i; j < job_count - 1; j++) {
+                background_jobs[j] = background_jobs[j + 1];
             }
+
+            job_count--;  // reduce job count
+        }
+        else if (result == 0) {
+            i++;
+        }
+    }
+}
+
+void exit_cleanup(void) {
+
+    for (int i = 0; i < job_count; i++) {
+        if (kill(background_jobs[i].pid, 0) == 0) {
+            kill(background_jobs[i].pid, SIGTERM);
+            waitpid(background_jobs[i].pid, NULL, 0);
         }
     }
 }

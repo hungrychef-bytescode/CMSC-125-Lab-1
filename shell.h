@@ -30,6 +30,6 @@ int executor(Command *cmd);
 int built_in_commands(Command *cmd);
 int external_commands(Command *cmd);
 void cleanup_background_jobs(void);
-
+void exit_cleanup(void);
 
 #endif
