@@ -393,4 +393,4 @@ print_footer
 
 ### Recorded Output
 
-[Click Here to Watch Test Case Compiled Output]((https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=sharing))
+[Click Here to Watch Test Case Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=sharing)
