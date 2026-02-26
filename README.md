@@ -1,54 +1,188 @@
+
+---
+
 # CMSC 125 Lab 1: Unix Shell
 
-## Group Members:
-- Angel May Janiola
-- Myra Verde
+## Group Members
 
-## Task Distribution
+* Angel May Janiola
+* Myra Verde
+
+---
+
+# Compilation and Usage Instructions
+
+## Requirements
+
+* GCC compiler
+* Unix-based system (Linux / macOS) or WSL
+* POSIX-compliant environment
+
+## Compilation
+
+Using the provided Makefile:
+
+```bash
+make
+```
+
+This compiles all source files and generates the executable:
+
+```
+mysh
+```
+
+To remove compiled files:
+
+```bash
+make clean
+```
+
+## Running the Shell
+
+```
+./mysh
+```
+
+The shell will display the prompt:
+
+```
+mysh>
+```
+
+To exit:
+
+```
+exit
+```
+
+---
+
+# Task Distribution
 
 ### Janiola – Parser & Command Structure
 
-- Design parsing and tokenization logic  
-- Detect operators (`<`, `>`, `>>`, `&`)  
-- Separate command arguments from operators  
-- Design `Command` data structure  
-- Identify edge cases and malformed input scenarios  
+* Design parsing and tokenization logic
+* Detect operators (`<`, `>`, `>>`, `&`)
+* Separate command arguments from operators
+* Design `Command` data structure
+* Identify edge cases and malformed input scenarios
 
 ### Verde – Execution & Process Management
 
-- Implement process creation (`fork()`)  
-- Execute commands using `execvp()`  
-- Handle I/O redirection with `open()` and `dup2()`  
-- Manage background processes using `waitpid()`  
+* Implement process creation (`fork()`)
+* Execute commands using `execvp()`
+* Handle I/O redirection with `open()` and `dup2()`
+* Manage background processes using `waitpid()`
 
 ### Both Members
 
-- overall system architecture  
-- Integrate parser and execution modules  
-- Testing and debugging  
-- Documentation and README
+* Overall system architecture
+* Integration of parser and execution modules
+* Testing and debugging
+* Documentation and README
 
 ---
 
-## Files
+# Files
 
-1. mysh.c (myra)
-- main program
-- main func, interactive shell loop, prompt display, read user input, call parser and executor, background cleanup and exit
-2. parser.c (angel)
-- tokenization of user input, detect special operators, separate command arguments, validation
-3. executor.c (myra)
-- built-in command handling, external command execution, i/o redirection, background process, zombie process prevention, error handling
-4. shell.h (both)
-- function prototype for parser, executor, and built-in commands, shared constants and flags
-5. documentation.md (both)
-- file for supported commands, examples and test cases, limitations
-6. makefile (angel)
-- automation file. targets all: compile the shell, clean: remove binaries and object files
+1. **mysh.c** (Myra)
+
+   * Main program
+   * Interactive shell loop
+   * Prompt display
+   * Reads user input
+   * Calls parser and executor
+   * Background cleanup and exit
+
+2. **parser.c** (Angel)
+
+   * Tokenization of user input
+   * Detect special operators
+   * Separate command arguments
+   * Validation
+
+3. **executor.c** (Myra)
+
+   * Built-in command handling
+   * External command execution
+   * I/O redirection
+   * Background process handling
+   * Zombie process prevention
+   * Error handling
+
+4. **shell.h** (Both)
+
+   * Function prototypes for parser, executor, and built-in commands
+   * Shared constants and flags
+
+5. **documentation.md** (Both)
+
+   * Supported commands
+   * Examples and test cases
+   * Limitations
+
+6. **Makefile** (Angel)
+
+   * `make` → compile the shell
+   * `make clean` → remove binaries and object files
 
 ---
 
-## Problem Analysis
+# Implemented Features
+
+## 1. Interactive Shell
+
+* Accepts user input in a continuous loop
+* Displays custom prompt `mysh>`
+* Skips empty input
+
+## 2. Built-in Commands
+
+* `cd` (uses `chdir()`)
+* `pwd` (uses `getcwd()`)
+* `exit`
+
+## 3. External Command Execution
+
+* Creates child processes using `fork()`
+* Executes commands using `execvp()`
+* Parent waits for foreground processes
+
+## 4. I/O Redirection
+
+* Input redirection `<`
+* Output overwrite `>`
+* Output append `>>`
+* Implemented using `open()` and `dup2()`
+
+## 5. Background Execution
+
+* Supports `&` operator
+* Parent does not block for background processes
+* Uses `waitpid(..., WNOHANG)` to prevent zombie processes
+
+## 6. Error Handling
+
+* Detects malformed input
+* Handles system call failures
+* Prevents file descriptor leaks
+* Ensures background processes are reaped
+
+---
+
+# Known Limitations or Bugs
+
+* Does not support piping (`|`)
+* Does not support multiple commands separated by `;`
+* No support for environment variable expansion (e.g., `$HOME`)
+* No quotation mark handling (`"` or `'`)
+* No advanced job control (`jobs`, `fg`, `bg`)
+* Limited validation for complex malformed inputs
+
+---
+
+# Problem Analysis
 
 The shell must:
 
@@ -74,63 +208,77 @@ The shell must:
 
 ---
 
+# Design Decisions and Architecture Overview
+
 ## Solution Architecture
 
-shell reads input and calls parser -> parse and build Command structure -> return Command to mysh.c -> mysh.c calls executor -> executes by handling built-in commands (parent) and fork for external commands
-- return code executor
+Shell reads input and calls parser → parser builds `Command` structure → returns to `mysh.c` → `mysh.c` calls executor → executor handles built-in commands (parent) or forks for external commands.
 
-### Main Components
-
-#### 1. Input Handler
-
-* mysh interactive loop prints prompt `mysh>`
-* Reads user input line
-* Skips empty input
-
-#### 2. Parser Module
-
-* Tokenize input by whitespace
-* Detect redirection operators and background flag
-* Builds `Command` structure containing:
-
-  * command name
-  * argument list
-  * input file
-  * output file
-  * append flag
-  * background flag
-
-#### 3. Built-in Command Handler
-
-* `cd` using `chdir()`
-* `pwd` using `getcwd()`
-* `exit` to terminate shell
-
-#### 4. Execution Module
-
-* Creates child process using `fork()`
-* Applies redirection using `open()` and `dup2()`
-* Executes program using `execvp()`
-* Parent waits unless background job
-
-#### 5. Background Job Manager
-
-* Tracks running background processes
-* Cleans up completed jobs using `waitpid(..., WNOHANG)`
+```
+Shell Loop (mysh.c)
+        ↓
+Parser Module (parser.c)
+        ↓
+Command Structure
+        ↓
+Executor Module (executor.c)
+```
 
 ---
 
-## Timeline Implementation
+## Main Components
+
+### 1. Input Handler
+
+* Prints prompt `mysh>`
+* Reads user input
+* Skips empty lines
+
+### 2. Parser Module
+
+* Tokenizes input by whitespace
+* Detects redirection operators and background flag
+* Builds `Command` structure containing:
+
+  * Command name
+  * Argument list
+  * Input file
+  * Output file
+  * Append flag
+  * Background flag
+
+### 3. Built-in Command Handler
+
+Built-in commands are executed in the parent process because:
+
+* `cd` must change the shell’s working directory
+* `exit` must terminate the shell
+
+### 4. Execution Module
+
+* `fork()` creates child process
+* Child applies redirection using `open()` and `dup2()`
+* Executes program using `execvp()`
+* Parent waits unless command runs in background
+
+### 5. Background Job Manager
+
+* Tracks background processes
+* Uses `waitpid(..., WNOHANG)` to clean up completed jobs
+
+---
+
+# Timeline Implementation
 
 ### Week 1
 
-* Github repo
-* Architecture design (problem analysis, solution architecture)
+* GitHub repository setup
+* Architecture design
 * Task division
 
 ### Week 2
 
-* Core features (process execution and parsing)  parsing and start interpreter
+* Core features (process execution and parsing)
 * Built-in commands
 * Basic I/O redirection
 
@@ -142,9 +290,11 @@ shell reads input and calls parser -> parse and build Command structure -> retur
 
 ### Week 4
 
-* finish and finalize lacking features
-* testing and bug fixing
-* documentation
-* laboratory defense
+* Finalizing features
+* Testing and bug fixing
+* Documentation
+* Laboratory defense
 
 ---
+
+# Screenshots showing Functionality
