@@ -2,9 +2,9 @@
 #include <stdio.h>      //for printf, fgets
 #include <stdlib.h>     //for free
 #include <string.h>     //for strcspn, strdup
-#include "shell.h"      //for Command struct and parse_cmd function
+#include "shell.h"      //for Command struct and function prototypes
 
-#define MAX_INPUT 1000
+#define MAX_INPUT 1024
 
 /*
 main function for the shell
@@ -16,6 +16,8 @@ int main() {
     char *tokens[MAX_ARGS];
 
     while (1){
+        cleanup_background_jobs();
+
         printf("mysh> ");
 
         if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error.
@@ -32,7 +34,10 @@ int main() {
         }
 
         Command cmd = parse_command(tokens);
-        executor(&cmd);
+        free(input_dup);                                                //free input dup string
+
+        executor(&cmd);                                   //call executor to run commands
+
         printf("Command: %s\n", cmd.command);
         for (int i = 0; cmd.args[i] != NULL; i++) {
             printf("Arg[%d]: %s\n", i, cmd.args[i]);
@@ -48,11 +53,7 @@ int main() {
 
         if (cmd.background)
             printf("Background: true\n");  
-        free(input_dup);                                                //free input dup string
         free_command(&cmd);  
         }
-        // free_command(&cmd);
     return 0;
 }
-
-        

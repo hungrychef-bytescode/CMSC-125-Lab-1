@@ -2,9 +2,10 @@
 #define SHELL_H
 
 #include <stdbool.h> //for bool
+#include <sys/types.h>
 
 #define MAX_ARGS 256
-#define MAX_JOBS 100
+#define MAX_JOBS 256
 
 typedef struct {
     char *command;
@@ -15,10 +16,18 @@ typedef struct {
     bool background;
 } Command;
 
+typedef struct {
+    int id;
+    pid_t pid;
+    char command[256];
+    bool is_running;
+} Job;
+
 void tokenize(char *input, char *tokens[]);
 Command parse_command(char *tokens[]);
 void free_command(Command *cmd);
-void executor(Command *cmd);
+int executor(Command *cmd);
+void cleanup_background_jobs(void);
 
 
 #endif

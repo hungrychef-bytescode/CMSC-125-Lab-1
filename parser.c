@@ -3,6 +3,10 @@
 #include <string.h> //for strdup - duplicate string
 #include "shell.h"
 
+/*
+parse_command func -> takes array of pointers to tokens and constructs Command struct
+-- command name, args, input/output redirection, background flag
+*/
 Command parse_command(char *tokens[]) {
     Command cmd = {0};
     int arg = 0;

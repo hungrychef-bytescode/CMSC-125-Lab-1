@@ -6,16 +6,17 @@
 #include <sys/wait.h> //for waitpid
 #include "shell.h"    
 
-static pid_t background_jobs[MAX_JOBS];     //storage for background job PIDs
+/*background job tracking*/
+static Job background_jobs[MAX_JOBS];
 static int job_count = 0;
+static int next_job_id = 1;         //start job IDs from 1 same with real shell
 
 
-//to do: may ginareturn dapat whether successful or not etc. 
 //perror -> print syscall error message
-void executor(Command *cmd){
+int executor(Command *cmd){
 
-     if (cmd == NULL || cmd->command == NULL)
-        return;
+     if (cmd == NULL || cmd->command == NULL)               //check for null command
+        return 1;
 
     // built-in commands
     if (strcmp(cmd->command, "exit") == 0) {            //exit shell
@@ -31,7 +32,7 @@ void executor(Command *cmd){
         } else {
             perror("failed to change directory");
         }
-        return;
+        return 1;
     }
 
     if (strcmp(cmd->command, "pwd") == 0) {             //print current working directory
@@ -41,7 +42,7 @@ void executor(Command *cmd){
         } else {
             perror("failed to get current directory");
         }
-        return;
+        return 1;       
     }
 
     //external commands
@@ -49,7 +50,7 @@ void executor(Command *cmd){
 
     if (pid < 0) {
         perror("fork failed");
-        return;
+        return 1;
     } else if (pid == 0) { //child process
         if (cmd->input_file){
             int file = open(cmd->input_file, O_RDONLY);
@@ -78,7 +79,7 @@ void executor(Command *cmd){
         }
 
         execvp(cmd->command, cmd->args);
-        perror("exec faile");
+        perror("exec failed");
         exit(127);     //cmd not found
     } else {  // Parent process
         if (!cmd->background) {
@@ -92,7 +93,31 @@ void executor(Command *cmd){
         }
         } else {
             printf("[%d] Started: %s (PID: %d)\n", job_count, cmd->command, pid); //print background job info
-            background_jobs[job_count++] = pid; 
+            background_jobs[job_count].id = next_job_id++;
+            background_jobs[job_count].pid = pid;
+            strcpy(background_jobs[job_count].command, cmd->command);
+            background_jobs[job_count].is_running = true;
+            job_count++;
         }
     }
+    return 0;}
+
+void cleanup_background_jobs(void) {
+    int status;
+    pid_t pid;
+
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+
+        for (int i = 0; i < job_count; i++) {
+
+            if (background_jobs[i].pid == pid && background_jobs[i].is_running) {
+
+                background_jobs[i].is_running = false;
+
+                printf("[%d]   Done                    %s\n",
+                       background_jobs[i].id,
+                       background_jobs[i].command);
+            }
         }
+    }
+}
