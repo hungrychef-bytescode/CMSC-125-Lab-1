@@ -1,10 +1,10 @@
-# 🐚 CMSC 125 Lab 1 — Unix Shell (`mysh`)
+# CMSC 125 Lab 1 — Unix Shell (`mysh`)
 
 > A simplified Unix shell implementing process management, I/O redirection, and background execution using the POSIX API in C.
 
 ---
 
-## 👥 Group Members
+## Group Members
 
 | Name | Role |
 |------|------|
@@ -13,13 +13,13 @@
 
 ---
 
-## 🎬 Recorded Output
+## Recorded Output
 
 ▶️ [Click Here to Watch Test Case Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=sharing)
 
 ---
 
-## ⚙️ Compilation & Usage
+## Compilation & Usage
 
 ### Requirements
 
@@ -61,11 +61,11 @@ mysh> exit
 
 ## ✅ Implemented Features
 
-### 1. 🖥️ Interactive Shell
+### 1. Interactive Shell
 - Continuous input loop with custom `mysh>` prompt
 - Skips empty and whitespace-only input
 
-### 2. 🔧 Built-in Commands
+### 2. Built-in Commands
 
 | Command | Description |
 |---------|-------------|
@@ -73,12 +73,12 @@ mysh> exit
 | `pwd` | Print working directory using `getcwd()` |
 | `exit` | Terminate the shell |
 
-### 3. ⚡ External Command Execution
+### 3. External Command Execution
 - Creates child processes using `fork()`
 - Executes commands using `execvp()`
 - Parent waits for foreground processes to finish
 
-### 4. 🔀 I/O Redirection
+### 4. I/O Redirection
 
 | Operator | Description |
 |----------|-------------|
@@ -93,7 +93,7 @@ Implemented using `open()` and `dup2()`.
 - Parent does not block for background processes
 - Uses `waitpid(..., WNOHANG)` to prevent zombie processes
 
-### 6. 🛡️ Error Handling
+### 6. Error Handling
 - Detects malformed input
 - Handles system call failures gracefully
 - Prevents file descriptor leaks
