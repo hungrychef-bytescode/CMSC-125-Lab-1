@@ -36,25 +36,8 @@ int main() {
         Command cmd = parse_command(tokens);
         free(input_dup);                                                //free input dup string
 
-        executor(&cmd);                                   //call executor to run commands
-
-        // printf("Command: %s\n", cmd.command);
-        // for (int i = 0; cmd.args[i] != NULL; i++) {
-        //     printf("Arg[%d]: %s\n", i, cmd.args[i]);
-        // }
-
-        // if (cmd.input_file)
-        //     printf("Input redirection: %s\n", cmd.input_file);
-
-        // if (cmd.output_file) {
-        //     printf("Output redirection: %s\n", cmd.output_file);
-        //     printf("Append mode: %s\n", cmd.append ? "true" : "false");
-        // }
-
-        // if (cmd.background)
-        //     printf("Background: true\n");  
-        free_command(&cmd);  
-        // printf("commands freed\n");
+        executor(&cmd);                                                 //call executor to run commands
+        free_command(&cmd);
         }
     return 0;
 }
