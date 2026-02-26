@@ -5,8 +5,8 @@
 
 ## Group Members
 
-* Angel May Janiola
-* Myra Verde
+* ANGEL MAY BERSALUNA JANIOLA
+* MYRA SUMAGAYSAY VERDE
 
 ---
 
@@ -297,6 +297,100 @@ Built-in commands are executed in the parent process because:
 
 ---
 
-# Screenshots showing Functionality
+# Proof of Functionality
 
-### Interactive Command Loop
+### Test Script
+
+```bash
+#!/bin/bash
+
+PASS=0
+FAIL=0
+
+print_header() {
+    echo ""
+    echo "╔════════════════════════════════════════════════════╗"
+    echo "║              mysh Test Suite                       ║"
+    echo "╚════════════════════════════════════════════════════╝"
+    echo ""
+}
+
+print_footer() {
+    echo ""
+    echo "╔════════════════════════════════════════════════════╗"
+    echo "║                  SUMMARY                           ║"
+    printf  "║  ✅ PASSED: %-2d   ❌ FAILED: %-2d                     ║\n" $PASS $FAIL
+    echo "║                                                    ║"
+    echo "║              Test Suite Complete                   ║"
+    echo "╚════════════════════════════════════════════════════╝"
+    echo ""
+}
+
+run_test() {
+    local desc=$1
+    shift
+    local commands=("$@")
+
+    echo "┌─────────────────────────────────────────────────────"
+    echo "│ 🧪 TEST : $desc"
+    echo "│ 📌 CMD  : ${commands[*]}"
+    echo "│ 📤 OUT  :"
+    echo "│"
+
+    local input=""
+    for cmd in "${commands[@]}"; do
+        input+="$cmd"$'\n'
+    done
+
+    local output
+    output=$(echo "$input" | ./mysh 2>&1 \
+        | grep -v "^Input:" \
+        | grep -v "^Command:" \
+        | grep -v "^Arg\[" \
+        | grep -v "^Output redirection" \
+        | grep -v "^Append mode" \
+        | grep -v "^Background" \
+        | grep -v "^Input redirection" \
+        | grep -v "mysh>")
+
+    if [ -z "$output" ]; then
+        echo "│   (no output)"
+        FAIL=$((FAIL + 1))
+        echo "│"
+        echo "│ ❌ RESULT: FAIL"
+    else
+        echo "$output" | while IFS= read -r line; do
+            echo "│   $line"
+        done
+        PASS=$((PASS + 1))
+        echo "│"
+        echo "│ ✅ RESULT: PASS"
+    fi
+
+    echo "└─────────────────────────────────────────────────────"
+    echo ""
+}
+
+# ── Setup ────────────────────────────────────────────────────
+echo -e "banana\nangel\ncherry\nmyra\nzebra" > unsorted.txt
+
+print_header
+
+run_test "pwd"                  "pwd"
+run_test "ls -la"               "ls -la"
+run_test "echo"                 "echo Hello World"
+run_test "output redirection"   "ls -la > output.txt" "cat output.txt"
+run_test "input redirection"    "ls -la > output.txt" "wc -l < output.txt"
+run_test "append redirection"   'echo "some text" >> output.txt' "cat output.txt"
+run_test "combined redirection" "sort < unsorted.txt > sorted.txt" "cat sorted.txt"
+run_test "background process"   "sleep 10 &" "sleep 20 &"
+run_test "nonexistent command"  "nonexistent_command"
+run_test "cd and pwd"           "cd /tmp" "pwd"
+run_test "exit"                 "exit"
+
+print_footer
+```
+
+### Recorded Output
+
+[Click here to watch Test Case Output](https:// )
