@@ -299,7 +299,7 @@ Built-in commands are executed in the parent process because:
 
 # Proof of Functionality
 
-### Test Script
+### Test Script Code
 
 ```bash
 #!/bin/bash
