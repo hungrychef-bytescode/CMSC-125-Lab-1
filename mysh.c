@@ -1,7 +1,7 @@
 //mysh.c  simple shell implementation for CMSC 125 lab 1
-
 #include <stdio.h>      //for printf, fgets
-#include <string.h>     //for strcspn
+#include <stdlib.h>     //for free
+#include <string.h>     //for strcspn, strdup
 #include "shell.h"      //for Command struct and parse_cmd function
 
 #define MAX_INPUT 1000
@@ -18,14 +18,18 @@ int main() {
     while (1){
         printf("mysh> ");
 
-        if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error. add printf
-        printf("Input: %s", input);
+        if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error.
 
         input[strcspn(input, "\n")] = '\0';                             //remove excess newline
 
-        tokenize(input, tokens);
+        char *input_dup = strdup(input);                                //duplicate input for tokenization
 
-        if (tokens[0] == NULL) continue;                               //if no input, continue loop
+        tokenize(input_dup, tokens);                                    //tokenize input to tokens arr
+
+        if (tokens[0] == NULL) {                                        //if empty, prompt again
+            free(input_dup);
+            continue;
+        }
 
         Command cmd = parse_command(tokens);
         executor(&cmd);
@@ -43,9 +47,9 @@ int main() {
         }
 
         if (cmd.background)
-            printf("Background: true\n");   
-        
-        free_command(&cmd);
+            printf("Background: true\n");  
+        free(input_dup);                                                //free input dup string
+        free_command(&cmd);  
         }
         // free_command(&cmd);
     return 0;

@@ -1,4 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
 #include <stdio.h> //for printf
 #include <stdlib.h> //for free
 #include <string.h> //for strdup - duplicate string
