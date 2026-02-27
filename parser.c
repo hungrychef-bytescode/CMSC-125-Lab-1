@@ -108,6 +108,7 @@ Command parse_command(char *tokens[]) {
             if (!cmd.args[arg]) { fprintf(stderr, "Error: Memory Allocation Failed\n"); free_command(&cmd); return (Command){0}; }
             arg++;
         }
+        //hello
     }
     cmd.args[arg] = NULL; //null-terminate args array
     return cmd;
