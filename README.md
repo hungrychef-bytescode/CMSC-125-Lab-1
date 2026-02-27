@@ -200,22 +200,23 @@ Multiple arguments
 ![multiple arguments](/images/multiple_argument.png)
 
 - I/O Redirection
-Input
+    - Input
 ![input](/images/input.png)
 
-Output
+    - Output
 ![output](/images/overwrite.png)
 
-Append
+    - Append
 ![append](/images/append.png)
 
-Combined
+    - Combined
 ![combined](/images/combined.png)
 
 - Background Job
 ![background](/images/background.png)
 
 - Handle Edge Cases
+
 ![edge cases](/images/edgecases.png)
 
 ---
