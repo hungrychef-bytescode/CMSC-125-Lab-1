@@ -7,6 +7,7 @@
 #define MAX_ARGS 256
 #define MAX_JOBS 256
 
+//data structure to represent commands
 typedef struct {
     char *command;
     char *args[MAX_ARGS];
@@ -16,13 +17,16 @@ typedef struct {
     bool background;
 } Command;
 
+//for background jobs
 typedef struct {
     int id;
     pid_t pid;
     char command[256];
 } Job;
 
+//function prototypes
 void tokenize(char *input, char *tokens[]);
+void free_tokens(char *tokens[]);
 Command parse_command(char *tokens[]);
 void free_command(Command *cmd);
 int executor(Command *cmd);

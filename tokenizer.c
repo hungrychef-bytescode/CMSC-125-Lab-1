@@ -1,26 +1,68 @@
-#include <string.h>     //for strtok
-#include <stdio.h>      //for printf
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "shell.h"
 
-/* tokenize func -> splits input string into tokens based on whitespace
-   input_dup -> duplicate of orig input string. being modified by strtok
-   tokens -> array of pointers storing tokenized strings
-*/
-void tokenize(char *input_dup, char *tokens[]) {
-    int count = 0;
+void tokenize(char *input, char *tokens[]) {
+    int i = 0;                      //index for input
+    int t = 0;                      //index for tokens
 
-    char *token = strtok(input_dup, " \t\n");            //split input by space, tab, newline
+    while (input[i] != '\0') {
 
-    if (token == NULL) {                               //if no tokens found, return empty array
-        tokens[0] = NULL;
-        return;
+        while (input[i] == ' ' || input[i] == '\t') {       //skip whitespace
+            i++;
+        }     
+            
+        if (input[i] == '\0')
+            break;
+
+        //handle quoted strings
+        if (input[i] == '"') {
+            i++;                            // skip opening quote
+            int start = i;
+            
+            while (input[i] != '"' && input[i] != '\0') {
+                i++;
+            }
+
+            int length = i - start;
+            tokens[t] = malloc(length + 1);
+            strncpy(tokens[t], &input[start], length);
+            tokens[t][length] = '\0';
+
+            t++;
+
+            if (input[i] == '"')
+                i++;                                              // skip closing quote
+        } else if (input[i] == '>' && input[i+1] == '>') {        //append >> operator
+            tokens[t++] = strdup(">>");
+            i += 2;
+        } else if (input[i] == '<' || input[i] == '>' || input[i] == '&') {   //one character operators
+            char op[2] = {input[i], '\0'};
+            tokens[t++] = strdup(op);
+            i++;
+        } else {                                                            //normal
+            int start = i;
+            while (input[i] != '\0' && input[i] != ' ' &&
+                   input[i] != '\t' && input[i] != '<' &&
+                   input[i] != '>' && input[i] != '&') {
+                i++;
+            }
+            int length = i - start;
+            tokens[t] = malloc(length + 1);
+            strncpy(tokens[t], &input[start], length);
+            tokens[t][length] = '\0';
+            t++;
+        }
+        if (t >= MAX_ARGS - 1)
+            break;
     }
+    tokens[t] = NULL;
+}
 
-    while (token != NULL && count < MAX_ARGS -1) {
-        tokens[count] = token;
-        token = strtok(NULL, " \t\n");
-        count++;
-        // printf("Token %d: %s\n", count, tokens[count-1]);
+void free_tokens(char *tokens[]) {
+    for (int i = 0; tokens[i] != NULL; i++) {
+        free(tokens[i]);
+        tokens[i] = NULL;
     }
-    tokens[count] = NULL;               //null-terminate arr of token
 }

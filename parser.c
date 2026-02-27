@@ -1,6 +1,6 @@
-#include <stdio.h> //for printf
-#include <stdlib.h> //for free
-#include <string.h> //for strdup - duplicate string
+#include <stdio.h> 
+#include <stdlib.h>
+#include <string.h>
 #include "shell.h"
 
 /*
@@ -23,7 +23,7 @@ Command parse_command(char *tokens[]) {
         char *next = tokens[i+1];                     //check next token
         if (strcmp(tokens[i], "<") == 0) {      //input redirection
             if (!next){
-                printf("Error: no input file");
+                fprintf(stderr, "Error: no input file\n");
                 free_command(&cmd);
                 return cmd;
             }
@@ -32,7 +32,7 @@ Command parse_command(char *tokens[]) {
             continue;
         } else if (strcmp(tokens[i], ">") == 0) {  //output redirection
             if (!next){
-                printf("Error: no output file");
+                fprintf(stderr, "Error: no output file\n");
                 free_command(&cmd);
                 return cmd;
             }
@@ -41,7 +41,7 @@ Command parse_command(char *tokens[]) {
             continue;
         } else if (strcmp(tokens[i], ">>") == 0) { //append output redirection
             if (!next){
-                printf("Error: no output file");
+                fprintf(stderr, "Error: no output file\n");
                 free_command(&cmd);
                 return cmd;
             }
@@ -52,14 +52,14 @@ Command parse_command(char *tokens[]) {
         } else if (strcmp(tokens[i], "&") == 0) {   //background process
             
              if (tokens[i+1]) {
-                printf("Error: & must be last token\n");
+                fprintf(stderr, "Error: & must be last token\n");
                 free_command(&cmd);
                 return cmd;
              }
              cmd.background = true;
         } else {
             if (arg >= MAX_ARGS - 1) {
-                printf("Error: too many args\n");
+                fprintf(stderr, "Error: too many args\n");
                 free_command(&cmd);
                 return cmd;
             }
@@ -84,6 +84,7 @@ void free_command(Command *cmd) {
         free(cmd->output_file);
         cmd->output_file = NULL;
     }
-    
     cmd->command = NULL;
+    cmd->append = false;
+    cmd->background = false;
 }
