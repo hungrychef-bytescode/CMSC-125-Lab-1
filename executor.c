@@ -1,11 +1,11 @@
-#define _POSIX_C_SOURCE 200809L   //for strdup
-#include <stdio.h>      //for printf, fgets
-#include <stdlib.h>     //for exit
-#include <string.h>     //for strcmp
-#include <unistd.h> //for fork, execvp, getcwd
-#include <fcntl.h> //for open
-#include <sys/wait.h> //for waitpid
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
 #include <signal.h> //for kill
+#include <errno.h>
 #include "shell.h"    
 
 /*background job tracking*/
@@ -101,7 +101,11 @@ int external_commands(Command *cmd) {
         }
 
         execvp(cmd->command, cmd->args);
-        perror(cmd->command);
+        if (errno == ENOENT) {
+            fprintf(stderr, "%s: command not found \n", cmd->command);
+        } else {
+            perror(cmd->command);
+        }
         _exit(127);     //cmd not found
     }
                                             

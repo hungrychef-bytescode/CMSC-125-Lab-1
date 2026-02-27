@@ -12,14 +12,6 @@
 | Myra S. Verde | Execution & Process Management |
 ---
 
-## Recorded Compiled Output 
-> *disclaimer: this isn't required but we'd like to put this here for our own benefit and documentation purposes*
-
- [Click Here to Watch Compiled Output](https://drive.google.com/file/d/1JEfb5DFEqtjBml_DvvDuAnfS-ZHEDaja/view?usp=drive_link)
-
-
----
-
 ## Compilation & Usage
 
 ### Requirements
@@ -31,7 +23,7 @@
 ### Compile
 
 ```bash
-make
+make all
 ```
 
 Generates the `mysh` executable. To clean compiled files:
@@ -107,7 +99,6 @@ Implemented using `open()` and `dup2()`.
 - No pipe support (`|`)
 - No multi-command support (`;`)
 - No environment variable expansion (`$HOME`, etc.)
-- No quote handling (`"` or `'`)
 - No advanced job control (`jobs`, `fg`, `bg`)
 - Limited validation for complex malformed inputs
 
@@ -118,12 +109,13 @@ Implemented using `open()` and `dup2()`.
 ```
 .
 ├── mysh.c          # Main shell loop, prompt, input handling
-├── parser.c        # Tokenization, operator detection, Command struct builder
+├── tokenizer.c     # Tokenization
+├── parser.c        # operator detection, Command struct builder
 ├── executor.c      # Built-ins, fork/exec, I/O redirection, background jobs
 ├── shell.h         # Shared structs, constants, function prototypes
 ├── Makefile        # Build system
-├── documentation.md
-├── test_mysh.sh    # Test script
+├── test/           # Test folder
+├── test.txt        # test scripts
 └── README.md
 ```
 
@@ -167,8 +159,11 @@ User Input
 Shell Loop (mysh.c)
     │
     ▼
-Parser Module (parser.c)
-    │  tokenize input, detect operators
+Tokenizer (tokenizer.c)
+    │
+    ▼
+Parser (parser.c)
+    │ 
     ▼
 Command Structure
     │  { command, args[], input_file, output_file, append, background }
@@ -193,4 +188,34 @@ Built-in commands (`cd`, `exit`) **must** run in the parent process — `cd` cha
 
 ---
 
-> *"Code tells you how, comments tell you why."* — Jeff Atwood
+## Screenshots showing Functionality
+
+- Builtin commands
+![builtin](/images/builtin.png)
+
+- External commands
+![external](/images/external.png)
+
+Multiple arguments
+![multiple arguments](/images/multiple_argument.png)
+
+- I/O Redirection
+Input
+![input](/images/input.png)
+
+Output
+![output](/images/overwrite.png)
+
+Append
+![append](/images/append.png)
+
+Combined
+![combined](/images/combined.png)
+
+- Background Job
+![background](/images/background.png)
+
+- Handle Edge Cases
+![edge cases](/images/edgecases.png)
+
+---

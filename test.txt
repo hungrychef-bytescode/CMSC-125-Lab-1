@@ -1,0 +1,30 @@
+built in commands
+pwd
+cd
+exit
+
+external commands
+ls
+echo "hello"
+cat unsorted.txt
+grep test file.txt
+wc file.txt
+grep cherry output.txt input.txt
+
+I/O redirection
+echo "test" > file.txt
+echo "more" >> file.txt
+ls > out.txt &
+sort < unsorted > sorted.txt
+
+background:
+sleep 5 &
+
+edge cases:
+nonexistent_command
+sort < nonexistent.txt
+echo hi > /root/file.txt
+sort <
+ls >
+ls > /dev/null
+

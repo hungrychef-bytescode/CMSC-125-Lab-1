@@ -13,33 +13,37 @@ entry point and used for the interactive loop
 int main() {
 
     char input[MAX_INPUT];
-    char *tokens[MAX_ARGS];
+    char *tokens[MAX_ARGS] = {0};
 
     while (1){
         cleanup_background_jobs();
 
+        fflush(stdout);
+
         printf("mysh> ");
+        
         fflush(stdout);
 
         if (fgets(input, MAX_INPUT, stdin) == NULL) break;              //exit on error.
 
         input[strcspn(input, "\n")] = '\0';                             //remove excess newline
 
-        char *input_dup = strdup(input);                                //duplicate input for tokenization
-
-        tokenize(input_dup, tokens);                                    //tokenize input to tokens arr
+        tokenize(input, tokens);                                        //tokenize input to tokens arr
 
         if (tokens[0] == NULL) {                                        //if empty, prompt again
-            free(input_dup);
+            free_tokens(tokens);
             continue;
         }
 
-        Command cmd = parse_command(tokens);
-        free(input_dup);                                                //free input dup string
-        input_dup = NULL;
         
-        executor(&cmd);                                                 //call executor to run commands
+        Command cmd = parse_command(tokens);
+        free_tokens(tokens);                                                //free tokens
+        
+        if (cmd.command != NULL) {
+            executor(&cmd);
+        }                                                  //call executor to run commands
+        
         free_command(&cmd);
-        }
+    }
     return 0;
 }

@@ -1,76 +1,68 @@
-#include <string.h>     //for strncpy
-#include <stdio.h>      //for fprintf
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "shell.h"
 
-/* tokenize func -> splits input string into tokens based on whitespace
-   handles quoted strings as a single token (e.g. "hello world" -> one token)
-   handles quotes in the middle of a word (e.g. hel"lo" -> hello)
-   reports unclosed quotes and empty tokens as errors
-   input_dup -> duplicate of orig input string
-   tokens -> array of pointers storing tokenized strings
-*/
+void tokenize(char *input, char *tokens[]) {
+    int i = 0;                      //index for input
+    int t = 0;                      //index for tokens
 
-// static pool so tokens stay valid for the lifetime of the command
-// reused each call since only one command is processed at a time
-static char token_pool[MAX_ARGS][4096];
+    while (input[i] != '\0') {
 
-void tokenize(char *input_dup, char *tokens[]) {
-    int count = 0;
-    char *p = input_dup;
+        while (input[i] == ' ' || input[i] == '\t') {       //skip whitespace
+            i++;
+        }     
+            
+        if (input[i] == '\0')
+            break;
 
-    while (*p != '\0' && count < MAX_ARGS - 1) {
-
-        // skip leading whitespace
-        while (*p == ' ' || *p == '\t' || *p == '\n') p++;
-
-        if (*p == '\0') break;
-
-        // build current token into pool buffer, handling mid-word quotes
-        char *buf = token_pool[count];
-        int buf_len = 0;
-        int in_token = 0;
-
-        while (*p != '\0') {
-            if (*p == '"' || *p == '\'') {
-                // quoted section: absorb everything until matching closing quote
-                char quote = *p++;      // skip opening quote
-                in_token = 1;
-
-                while (*p != '\0' && *p != quote) {
-                    if (buf_len < 4095) buf[buf_len++] = *p;
-                    p++;
-                }
-
-                if (*p == quote) {
-                    p++;                // skip closing quote
-                } else {
-                    fprintf(stderr, "Error: Unclosed Quote\n");
-                    tokens[0] = NULL;
-                    return;
-                }
-
-            } else if (*p == ' ' || *p == '\t' || *p == '\n') {
-                break;                  // whitespace ends token
-            } else {
-                if (buf_len < 4095) buf[buf_len++] = *p;
-                p++;
-                in_token = 1;
+        //handle quoted strings
+        if (input[i] == '"') {
+            i++;                            // skip opening quote
+            int start = i;
+            
+            while (input[i] != '"' && input[i] != '\0') {
+                i++;
             }
+
+            int length = i - start;
+            tokens[t] = malloc(length + 1);
+            strncpy(tokens[t], &input[start], length);
+            tokens[t][length] = '\0';
+
+            t++;
+
+            if (input[i] == '"')
+                i++;                                              // skip closing quote
+        } else if (input[i] == '>' && input[i+1] == '>') {        //append >> operator
+            tokens[t++] = strdup(">>");
+            i += 2;
+        } else if (input[i] == '<' || input[i] == '>' || input[i] == '&') {   //one character operators
+            char op[2] = {input[i], '\0'};
+            tokens[t++] = strdup(op);
+            i++;
+        } else {                                                            //normal
+            int start = i;
+            while (input[i] != '\0' && input[i] != ' ' &&
+                   input[i] != '\t' && input[i] != '<' &&
+                   input[i] != '>' && input[i] != '&') {
+                i++;
+            }
+            int length = i - start;
+            tokens[t] = malloc(length + 1);
+            strncpy(tokens[t], &input[start], length);
+            tokens[t][length] = '\0';
+            t++;
         }
-
-        if (!in_token) continue;
-
-        buf[buf_len] = '\0';
-
-        // empty quotes (e.g. "" or '') produce empty string — report and stop
-        if (buf_len == 0) {
-            fprintf(stderr, "Error: Empty Token\n");
-            tokens[0] = NULL;
-            return;
-        }
-
-        tokens[count++] = buf;
+        if (t >= MAX_ARGS - 1)
+            break;
     }
+    tokens[t] = NULL;
+}
 
-    tokens[count] = NULL;               //null-terminate arr of token
+void free_tokens(char *tokens[]) {
+    for (int i = 0; tokens[i] != NULL; i++) {
+        free(tokens[i]);
+        tokens[i] = NULL;
+    }
 }
