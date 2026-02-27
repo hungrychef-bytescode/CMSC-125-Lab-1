@@ -191,28 +191,36 @@ Built-in commands (`cd`, `exit`) **must** run in the parent process — `cd` cha
 ## Screenshots showing Functionality
 
 - Builtin commands
+
 ![builtin](/images/builtin.png)
 
 - External commands
+
 ![external](/images/external.png)
 
-Multiple arguments
+    - Multiple arguments
 ![multiple arguments](/images/multiple_argument.png)
 
 - I/O Redirection
+
     - Input
+
 ![input](/images/input.png)
 
     - Output
+
 ![output](/images/overwrite.png)
 
     - Append
+
 ![append](/images/append.png)
 
     - Combined
+
 ![combined](/images/combined.png)
 
 - Background Job
+
 ![background](/images/background.png)
 
 - Handle Edge Cases
